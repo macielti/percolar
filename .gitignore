@@ -13,3 +13,4 @@ pom.xml.asc
 .hg/
 /percolar.iml
 /.idea/
+/resources/config.edn
