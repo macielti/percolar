@@ -19,3 +19,13 @@
    expected-years-life-span :- s/Int]
   (let [expected-death-date (t/plus birth-date (t/years expected-years-life-span))]
     (t/in-days (t/interval today expected-death-date))))
+
+(s/defn lived-percentage :- s/Num
+  [total-days-expected :- s/Int
+   already-lived :- s/Int]
+  (float (* (/ already-lived total-days-expected) 100)))
+
+(s/defn remaining-expected-days-to-live-percentage :- s/Num
+  [total-days-expected :- s/Int
+   remaining-expected-days-life :- s/Int]
+  (float (* (/ remaining-expected-days-life total-days-expected) 100)))
