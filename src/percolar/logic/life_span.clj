@@ -1,21 +1,22 @@
 (ns percolar.logic.life-span
   (:require [clj-time.core :as t]
-            [schema.core :as s])
-  (:import (org.joda.time DateTime)))
+            [schema.core :as s]
+            [percolar.models.life-span :as models.life-span])
+  (:import (org.joda.time LocalDate)))
 
 (s/defn days-lived :- s/Int
-  [birth-date :- DateTime
-   today :- DateTime]
+  [birth-date :- LocalDate
+   today :- LocalDate]
   (t/in-days (t/interval birth-date today)))
 
 (s/defn total-expected-days-life-span :- s/Int
-  [birth-date :- DateTime
+  [birth-date :- LocalDate
    expected-years-life-span :- s/Int]
   (t/plus birth-date (t/years expected-years-life-span)))
 
 (s/defn remaining-expected-days-life-span :- s/Int
-  [birth-date :- DateTime
-   today :- DateTime
+  [birth-date :- LocalDate
+   today :- LocalDate
    expected-years-life-span :- s/Int]
   (let [expected-death-date (t/plus birth-date (t/years expected-years-life-span))]
     (t/in-days (t/interval today expected-death-date))))
@@ -29,3 +30,16 @@
   [total-days-expected :- s/Int
    remaining-expected-days-life :- s/Int]
   (float (* (/ remaining-expected-days-life total-days-expected) 100)))
+
+(s/defn ->life-span :- models.life-span/LifeSpan
+  [birth-date :- LocalDate
+   today :- LocalDate
+   years-expected :- s/Int]
+  (let [total-expected-days (total-expected-days-life-span birth-date years-expected)
+        days-lived (days-lived birth-date today)
+        remaining-expected-days (remaining-expected-days-life-span birth-date today years-expected)]
+    {:life-span/days-lived                         days-lived
+     :life-span/total-expected-days                total-expected-days
+     :life-span/remaining-expected-days            remaining-expected-days
+     :life-span/days-lived-percentage              (lived-percentage total-expected-days days-lived)
+     :life-span/remaining-expected-days-percentage (remaining-expected-days-to-live-percentage total-expected-days remaining-expected-days)}))
